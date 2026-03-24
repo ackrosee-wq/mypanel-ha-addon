@@ -164,6 +164,17 @@ def _entity_to_panel_json(entity_id: str, state_obj: dict) -> dict | None:
             entry["value"] = state
         entry["unit"] = attrs.get("unit_of_measurement", "")
         entry["device_class"] = attrs.get("device_class", "")
+    elif domain == "binary_sensor":
+        entry["device_class"] = attrs.get("device_class", "")
+    elif domain == "climate":
+        entry["temperature"] = attrs.get("temperature", 0) or 0
+        entry["current_temperature"] = attrs.get("current_temperature", 0) or 0
+        entry["hvac_mode"] = state
+        entry["hvac_modes"] = attrs.get("hvac_modes", [])
+    elif domain == "cover":
+        entry["position"] = attrs.get("current_position", 0) or 0
+    elif domain == "lock":
+        entry["device_class"] = attrs.get("device_class", "")
 
     ha_features = attrs.get("supported_features", 0) or 0
     entry["features"] = _map_features(domain, ha_features, attrs)
@@ -329,6 +340,12 @@ class MyPanelBridge:
             service_data["rgb_color"] = list(data["rgb"])
         if "speed" in data:
             service_data["percentage"] = int(data["speed"])
+        if "temperature" in data:
+            service_data["temperature"] = float(data["temperature"])
+        if "hvac_mode" in data:
+            service_data["hvac_mode"] = data["hvac_mode"]
+        if "position" in data:
+            service_data["position"] = int(data["position"])
 
         path = f"/api/services/{domain}/{service}"
         try:
@@ -388,7 +405,7 @@ class MyPanelBridge:
             eid: str = state_obj.get("entity_id", "")
             domain = _entity_domain(eid)
 
-            if domain not in ("light", "fan", "switch", "sensor"):
+            if domain not in ("light", "fan", "switch", "sensor", "binary_sensor", "climate", "cover", "lock", "input_boolean"):
                 continue
 
             entry = _entity_to_panel_json(eid, state_obj)
@@ -522,7 +539,7 @@ class MyPanelBridge:
                 continue
 
             domain = _entity_domain(entity_id)
-            if domain not in ("light", "fan", "switch", "sensor"):
+            if domain not in ("light", "fan", "switch", "sensor", "binary_sensor", "climate", "cover", "lock", "input_boolean"):
                 continue
 
             self._publish_entity_state(entity_id, new_state)

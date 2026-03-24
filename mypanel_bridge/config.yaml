@@ -1,6 +1,6 @@
 name: "MyPanel Bridge"
 description: "Bridges an ESP32 MQTT touch-panel to Home Assistant entities and services"
-version: "1.0.0"
+version: "1.1.0"
 slug: "mypanel_bridge"
 url: "https://github.com/ackrosee-wq/mypanel-ha-addon"
 arch:
