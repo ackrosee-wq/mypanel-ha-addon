@@ -1,0 +1,47 @@
+name: "MyPanel Bridge"
+description: "Bridges an ESP32 MQTT touch-panel to Home Assistant entities and services"
+version: "1.0.0"
+slug: "mypanel_bridge"
+url: "https://github.com/ackrosee-wq/mypanel-ha-addon"
+image: "ghcr.io/{arch}-addon-mypanel-bridge"
+arch:
+  - amd64
+  - aarch64
+  - armv7
+  - armhf
+  - i386
+startup: services
+boot: auto
+init: false
+
+# Permissions
+hassio_api: true
+homeassistant_api: true
+auth_api: true
+mqtt: true
+
+# Optional web status page
+ports:
+  "8099/tcp": 8099
+ports_description:
+  "8099/tcp": "Web status page (optional)"
+
+# Add-on options exposed in the UI
+options:
+  log_level: "info"
+  mqtt_topic_prefix: "mypanel"
+  entity_filters:
+    - "light.*"
+    - "fan.*"
+    - "switch.*"
+    - "sensor.*"
+  discovery_interval_seconds: 300
+schema:
+  log_level: "list(debug|info|warning|error)"
+  mqtt_topic_prefix: str
+  entity_filters:
+    - str
+  discovery_interval_seconds: "int(60,3600)"
+
+environment:
+  PYTHONUNBUFFERED: "1"
