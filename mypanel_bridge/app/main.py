@@ -129,9 +129,13 @@ def _entity_to_panel_json(entity_id: str, state_obj: dict) -> dict | None:
     state: str = state_obj.get("state", "unavailable")
     attrs: dict = state_obj.get("attributes", {})
 
-    # Filter: only temperature sensors
+    # Filter sensors: temperature + water level
     if domain == "sensor":
-        if attrs.get("device_class") != "temperature":
+        device_class = attrs.get("device_class", "")
+        eid_lower = entity_id.lower()
+        is_temp = device_class == "temperature"
+        is_water = "water_level" in eid_lower or device_class == "moisture"
+        if not is_temp and not is_water:
             return None
 
     is_on = state not in ("off", "unavailable", "unknown")
