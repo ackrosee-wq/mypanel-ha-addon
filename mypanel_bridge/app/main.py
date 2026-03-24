@@ -129,14 +129,15 @@ def _entity_to_panel_json(entity_id: str, state_obj: dict) -> dict | None:
     state: str = state_obj.get("state", "unavailable")
     attrs: dict = state_obj.get("attributes", {})
 
-    # Filter sensors: temperature + water level
+    # Pass ALL sensors through – panel decides what to display.
+    # Only skip sensors with no numeric state (e.g. text-only sensors).
     if domain == "sensor":
-        device_class = attrs.get("device_class", "")
-        eid_lower = entity_id.lower()
-        is_temp = device_class == "temperature"
-        is_water = "water_level" in eid_lower or device_class == "moisture"
-        if not is_temp and not is_water:
-            return None
+        try:
+            float(state)
+        except (ValueError, TypeError):
+            # Non-numeric sensor (e.g. "sunny", "home") – skip
+            if state not in ("on", "off"):
+                return None
 
     is_on = state not in ("off", "unavailable", "unknown")
 
@@ -157,8 +158,12 @@ def _entity_to_panel_json(entity_id: str, state_obj: dict) -> dict | None:
     elif domain == "fan":
         entry["speed"] = attrs.get("percentage", 0) or 0
     elif domain == "sensor":
-        entry["value"] = state
+        try:
+            entry["value"] = float(state)
+        except (ValueError, TypeError):
+            entry["value"] = state
         entry["unit"] = attrs.get("unit_of_measurement", "")
+        entry["device_class"] = attrs.get("device_class", "")
 
     ha_features = attrs.get("supported_features", 0) or 0
     entry["features"] = _map_features(domain, ha_features, attrs)
