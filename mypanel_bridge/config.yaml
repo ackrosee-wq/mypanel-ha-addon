@@ -3,13 +3,9 @@ description: "Bridges an ESP32 MQTT touch-panel to Home Assistant entities and s
 version: "1.0.0"
 slug: "mypanel_bridge"
 url: "https://github.com/ackrosee-wq/mypanel-ha-addon"
-image: "ghcr.io/{arch}-addon-mypanel-bridge"
 arch:
   - amd64
   - aarch64
-  - armv7
-  - armhf
-  - i386
 startup: services
 boot: auto
 init: false
